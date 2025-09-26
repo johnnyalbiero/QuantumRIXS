@@ -3,13 +3,13 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter, PillowWriter
 import os
-ffmpeg_path = os.environ.get("FFMPEG_PATH", r"C:\Users\albie\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.0-essentials_build\bin\ffmpeg.exe")
+ffmpeg_path = os.environ.get("FFMPEG_PATH", r"ffmpeg")  # Ajuste o caminho conforme necessário
 plt.rcParams['animation.ffmpeg_path'] = ffmpeg_path
 from operators import Parameters, Operators
 from split import step
 
 def animate_simulation(par: Parameters, opr: Operators, n_frames, steps_per_frame,
- save_as: str = "Videos/Split_Operator.mp4", fps =60, dpi: int = 200):
+ save_as: str = "Split_Operator.mp4", fps =60, dpi: int = 200):
     max_possible_frames = max(1, par.timesteps // max(1, steps_per_frame))
     n_frames = min(n_frames, max_possible_frames)
 
