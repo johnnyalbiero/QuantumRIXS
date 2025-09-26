@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter, PillowWriter
 import os
-ffmpeg_path = os.environ.get("FFMPEG_PATH", r"ffmpeg")  # Ajuste o caminho conforme necessário
+ffmpeg_path = os.environ.get("FFMPEG_PATH", r"ffmpeg")  # Adjust the path as necessary
 plt.rcParams['animation.ffmpeg_path'] = ffmpeg_path
 from operators import Parameters, Operators
 from split import step
@@ -74,6 +74,5 @@ def animate_simulation(par: Parameters, opr: Operators, n_frames, steps_per_fram
             ani.save(save_as, writer=writer, dpi=dpi)
     else:
         print("Unknown format. Use .mp4 or .gif")
-        print("Formato desconhecido. Use .mp4 ou .gif")
 
     plt.close(fig)
