@@ -3,19 +3,21 @@ import math
 from operators import Parameters, Operators
 
 
+# This init function initializes the Operators class with the potential and initial wave function, as well as the kinetic and potential evolution operators
 def init(par: Parameters, V_func, psi_func):
     opr = Operators(len(par.x))
     opr.V = V_func(par.x)
     opr.psi = psi_func(par.x).astype(complex)
 
     if par.im_time:
-        opr.K = np.exp(-0.5 * par.dt * (par.k ** 2))
-        opr.R = np.exp(-0.5 * par.dt * opr.V)
+        opr.K = np.exp(-0.5 * par.dt * (par.hbar * par.k ** 2)/par.m)
+        opr.R = np.exp(-0.5 * par.dt * opr.V / par.hbar)
     else:
-        opr.K = np.exp(-0.5j * par.dt * (par.k ** 2))
-        opr.R = np.exp(-0.5j * par.dt * opr.V)
+        opr.K = np.exp(-0.5j * par.dt * (par.hbar * par.k ** 2)/par.m)
+        opr.R = np.exp(-0.5j * par.dt * opr.V / par.hbar)
     return opr
 
+# This split_operator function does the full time evolution for par.timesteps, using a loop to call the step function for itch timestep
 def split_operator(par: Parameters, opr: Operators):
     for i in range(par.timesteps):
         opr.psi *= opr.R
@@ -36,6 +38,8 @@ def split_operator(par: Parameters, opr: Operators):
                 outfile.write(line)
         print("Outputting step: ", i + 1)
 
+# Tghe step function does a single time step of the split-operator method and returns the density, that's the function used in animation.py
+# to update the wavefunction at each frame of the animation
 def step(par: Parameters, opr: Operators):
     opr.psi *= opr.R
     opr.psi = np.fft.fft(opr.psi)
@@ -49,12 +53,16 @@ def step(par: Parameters, opr: Operators):
         opr.psi /= np.sqrt(renorm_factor)
     return np.abs(opr.psi) ** 2
 
+
+# Cute function that calculate the total energy of the system at a given time t
 def calculate_energy(par: Parameters, opr: Operators):
     psi_r = opr.psi
     psi_k = np.fft.fft(psi_r)
     psi_c = np.conj(psi_r)
 
-    energy_k = 0.5 * psi_c * np.fft.ifft((par.k ** 2) * psi_k)
+ # T_op = (hbar² * k²) / 2m
+    kinetic_operator_k_space = (par.hbar**2 * par.k**2) / (2 * par.m)
+    energy_k = psi_c * np.fft.ifft(kinetic_operator_k_space * psi_k)
     energy_r = psi_c * opr.V * psi_r
 
     total_energy = np.sum(energy_k + energy_r) * par.dx

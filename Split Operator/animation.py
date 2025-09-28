@@ -64,7 +64,7 @@ def animate_simulation(par: Parameters, opr: Operators, n_frames, steps_per_fram
 
     ani = FuncAnimation(fig, update, frames=range(n_frames), init_func=init, blit=True)
 
-    # Salvar vídeo ou GIF
+    # Save the animation
     if save_as.endswith(".mp4"):
             writer = FFMpegWriter(fps=fps)
             ani.save(save_as, writer=writer, dpi=dpi)
@@ -76,3 +76,4 @@ def animate_simulation(par: Parameters, opr: Operators, n_frames, steps_per_fram
         print("Unknown format. Use .mp4 or .gif")
 
     plt.close(fig)
+
