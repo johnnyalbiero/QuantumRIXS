@@ -25,7 +25,7 @@ def V_morse(x, D_e, a, voffset):
         #print(f"Energy level n={i}: E_n = {E_n}")  
     """
 
-def wavefunc(x, par, gamma: float = 0.1, k_0: float = -0.2, psioffset: float = 0.1):
+def wavefunc(x, par, gamma, k_0, psioffset):
     # Gaussian wave packet
     #return (1 / (2 * np.pi * gamma**2) ** 0.25) * np.exp(-0.25 * ((x - psioffset) / gamma) ** 2) # Psi(x) = 1/(2πγ²)^(1/4) * exp(-0.5 * ((x - x0)/γ)²)
     
