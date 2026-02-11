@@ -1,15 +1,14 @@
-import math
 import numpy as np
 import os
 from split import init, Parameters, run_save_simulation
 
 config = Parameters(
-    xmin=-50, xmax=50, dx=0.001, 
-    dt=0.01, timesteps=2**16, steps_per_frame=5,
+    xmin=-5, xmax=5, res = 2**15, # How the algoritm use the FFT to calculate the dinamic of the wavefunction it's better to use 2^n to resolution
+    dt=0.01, timesteps=2**18, steps_per_frame=30,
     hbar=1, m=1, omega=5
 )
 pot_params = {'voffset': 0.0}
-psi_params = {'gamma': 0.1, 'k_0': -0.2, 'psioffset': 4}
+psi_params = {'gamma': 0.1, 'k_0': -0.2, 'psioffset': 0.1}
 
 def V_harmonic(x, par, voffset):
     return 0.5 * par.m * (par.omega**2) * (x - voffset)**2
@@ -17,7 +16,7 @@ def V_harmonic(x, par, voffset):
 def V_morse(x, D_e, a, voffset):
     return D_e * (1 - np.exp(-a * (x - voffset)))**2
 
-    """ --- Bagulho interessante ---
+    """ --- Interesting function ---
     lambda_ = np.sqrt(2 * par.m * D_e) / (a * par.hbar)
     n_max = int(lambda_ - 0.5)
 
@@ -26,16 +25,18 @@ def V_morse(x, D_e, a, voffset):
         #print(f"Energy level n={i}: E_n = {E_n}")  
     """
 
-def wavefunc(x, par, gamma: float = 0.1, k_0: float = -0.2, psioffset: float = 4):
+def wavefunc(x, par, gamma: float = 0.1, k_0: float = -0.2, psioffset: float = 0.1):
     # Gaussian wave packet
-    return (1 / (2 * np.pi * gamma**2) ** 0.25) * np.exp(-0.25 * ((x - psioffset) / gamma) ** 2) # Psi(x) = 1/(2πγ²)^(1/4) * exp(-0.5 * ((x - x0)/γ)²)
+    #return (1 / (2 * np.pi * gamma**2) ** 0.25) * np.exp(-0.25 * ((x - psioffset) / gamma) ** 2) # Psi(x) = 1/(2πγ²)^(1/4) * exp(-0.5 * ((x - x0)/γ)²)
     
-    """ --- Another interesting wave functions ---
-
     # Ground state of quantum harmonic oscillator
     # Psi(x) = (mω/πħ)^(1/4) * exp(-0.5 * mω/ħ * (x - x0)²)
-    #return (par.omega * par.m / (np.pi * par.hbar)) ** 0.25 * np.exp(-0.5 * (par.m * par.omega /par.hbar) * (x - psioffset) ** 2) 
+    return (par.omega * par.m / (np.pi * par.hbar)) ** 0.25 * np.exp(-0.5 * (par.m * par.omega /par.hbar) * (x - psioffset) ** 2) 
     
+
+    """ --- Another interesting wave functions ---
+
+   
     # Gaussian wave packet with momentum
     # Psi(x) = 1/(2πγ²)^(1/4) * exp(-0.5 * ((x - x0)/γ)²) * exp(i * k0 * x)
     #return (1 / (2 * np.pi * gamma**2) ** 0.25) * np.exp(-0.5 * (x - psioffset) / gamma ** 2 + 1j * k_0 * x, dtype=complex) 
@@ -51,7 +52,7 @@ def main():
     pot_params = {'D_e': 50, 'a': 0.5, 'voffset': 0.0}
     """
 
-    par = Parameters(config)
+    par = config
 
     info_dict = {'pot_func': pot_func.__name__, **pot_params, **psi_params}
 

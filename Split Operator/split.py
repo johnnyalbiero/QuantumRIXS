@@ -3,26 +3,15 @@ import math
 
 """ Utility functions for Split Operator Method """
 
-def next_fast_len(target: int) -> int:
-    if target <= 0:
-        return 1
-    while True:
-        n = target
-        for p in [2, 3, 5]:
-            while n % p == 0:
-                n //= p
-        if n == 1:
-            return target
-        target += 1
-
 class Parameters:
-    def __init__(self, xmin: float, xmax: float, dx: float, 
+    def __init__(self, xmin: float, xmax: float, res: float, 
                  dt: float , timesteps: int, steps_per_frame: int, 
-                 hbar: float, m: float, omega: float, res: int = 0, 
-                 im_time: bool = False, renormalize: bool = False
+                 hbar: float, m: float, omega: float, 
+                 im_time: bool = False
     ):
         self.xmax = xmax
         self.xmin = xmin
+        self.res = res
         self.dt = dt
         self.timesteps = timesteps
         self.steps_per_frame = steps_per_frame
@@ -30,22 +19,10 @@ class Parameters:
         self.hbar = hbar
         self.m = m
         self.omega = omega
-        self.renormalize = renormalize
 
         width = float(xmax) - float(xmin)
-
-        if res <= 0:
-            if dx > 0:
-                res_candidate = math.ceil(width / float(dx))
-            else:
-                print("Warning: Invalid dx value. Using default resolution of 2048 points.")
-                res_candidate = 2048 
-        else:
-            res_candidate = int(res)
-
-        self.res = int(next_fast_len(res_candidate)) 
         
-        self.dx = width / float(self.res)
+        self.dx = width / res
         self.dk = 2 * math.pi / width 
         self.x = np.linspace(xmin, xmax, self.res, endpoint=False)
         self.k = 2 * np.pi * np.fft.fftfreq(self.res, d=self.dx)
@@ -118,7 +95,7 @@ def run_save_simulation(par: Parameters, opr: Operators,
                         filename: str, n_frames: int, steps_per_frame: int):
 
     total_steps = max(1, min(par.timesteps, n_frames * max(1, steps_per_frame)))
-    target_resolution = 2**13
+    target_resolution = 2**16
     full_resolution = len(opr.psi)
     
     if full_resolution > target_resolution:
@@ -156,9 +133,9 @@ def run_save_simulation(par: Parameters, opr: Operators,
     x_saved = par.x[::stride]
     V_saved = opr.V[::stride]
 
-    np.savez_compressed(filename, psi_snapshots=psi_snapshots, 
-                        correlation_history=correlation_history, 
-                        V=V_saved, x=x_saved, dt=par.dt, energy=energy, 
-                        xmin=par.xmin, xmax=par.xmax)
+    np.savez_compressed(filename, psi_snapshots = psi_snapshots, 
+                        correlation_history = correlation_history, 
+                        V = V_saved, x = x_saved, dt = par.dt, energy = energy, 
+    )
     print("Finished.")
     
