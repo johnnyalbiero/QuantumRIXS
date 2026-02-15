@@ -32,8 +32,8 @@ def load_data(filename):
 This part calculate the analytical eigenvalues and coefficients for the plot of a analytical
 peaks of the Harmonic Oscilator in the frequency space. How we know exactly the eigenfunctions
 and eigenvalues for this example, this makes him perfect to compare with the results obtained
-in the Split Operathor method, evaluating the analytical and aproximated eigenenergys and
-comparing, besides the height of each peak, that show us the influence of each eigenvalue
+in the Split Operathor method, benchmarking the algoritm, evaluating the analytical and aproximated 
+eigenenergys and comparing, besides the height of each peak, that show us the influence of each eigenvalue
 in the temporal evolution.
 
 Here I calculate the eigenfunction of the HO and with this made a array with every eigenenergy.
@@ -83,7 +83,7 @@ def analytical_spectrum(freq, x, E_n_list, n_max, par, psi0):
         delta =  (1 / np.pi ) * (eta / (diff_w**2 + eta**2))
 
         Sw_analytical += np.abs(c_n)**2 * delta 
-    print(np.sum(Sw_analytical)* eta)
+
     return Sw_analytical
 
 
@@ -140,9 +140,6 @@ def plot_simulation(data):
 
     dummy_par = type('Params', (object,), {'dt': dt , 'hbar': par.hbar})()
     freq, Cw = frequency_correlation_from_ct(dummy_par, c_full)
-    d_omega = freq[1] - freq[0]
-
-    print( np.sum(Cw.real)*d_omega)
 
     E_n_list, n_max = eigenvalues_harmonic(freq, par, n_max = None)
 
