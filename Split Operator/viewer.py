@@ -67,11 +67,11 @@ def eigenvalues_harmonic(freq_array, par, n_max):
         E_n_list.append(E_n)
     return E_n_list , n_max
 
-def analytical_spectrum(freq, x, E_n_list, n_max, par, psi0, psioffset = 0.1):
+def analytical_spectrum(freq, x, E_n_list, n_max, par, psi0):
     phi_n_list = eigenfunc_harmonic(x, par, n_max)
     Sw_analytical = np.zeros_like(freq, dtype=float)
 
-    dx = par.dx
+    dx = x[1] - x[0]
     eta = freq[1] - freq[0]
 
     for n in range(n_max + 1):
@@ -80,11 +80,10 @@ def analytical_spectrum(freq, x, E_n_list, n_max, par, psi0, psioffset = 0.1):
         w_n_center = E_n_list[n] / par.hbar
 
         diff_w = freq - w_n_center
-        delta = (1 / np.pi) * (eta / (diff_w**2 + eta**2))
+        delta =  (1 / np.pi ) * (eta / (diff_w**2 + eta**2))
 
-        Sw_analytical += np.abs(c_n)**2 * delta
-    print(np.max(np.abs(Sw_analytical)))
-    
+        Sw_analytical += np.abs(c_n)**2 * delta 
+    print(np.sum(Sw_analytical)* eta)
     return Sw_analytical
 
 
@@ -134,11 +133,16 @@ def plot_simulation(data):
 
     total_steps = len(c_t)
     c_full = np.empty(2 * total_steps - 1, dtype=complex)
-    c_full[total_steps - 1:] = c_t
-    c_full[:total_steps - 1] = np.conj(c_t[1:][::-1])
+    c_full[total_steps - 1] = c_t[0]
+    for i in range (1, total_steps):
+        c_full[total_steps - 1 + i] = c_t[i]
+        c_full[total_steps - 1 - i] = np.conj(c_t[i])
 
-    dummy_par = type('Params', (object,), {'dt': dt})()
+    dummy_par = type('Params', (object,), {'dt': dt , 'hbar': par.hbar})()
     freq, Cw = frequency_correlation_from_ct(dummy_par, c_full)
+    d_omega = freq[1] - freq[0]
+
+    print( np.sum(Cw.real)*d_omega)
 
     E_n_list, n_max = eigenvalues_harmonic(freq, par, n_max = None)
 
@@ -156,35 +160,34 @@ def plot_simulation(data):
     
     Sw_analytical = analytical_spectrum(freq, x, E_n_list, n_max, par, psi0)
 
-    amplitude = np.abs(Cw)
     threshold = 0.1
 
-    ax2.plot(freq, amplitude, 'k-', lw=2, label=r"$|\sigma(\omega)|^2$")
+    ax2.plot(freq, np.abs(Cw), 'k-', lw=2, label=r"$|\sigma(\omega)|$")
     ax2.plot(freq, Sw_analytical, 'r--', lw=1.5, label="Analytical Spectrum")
     ax2.plot(freq, Cw.real, label=r"Re{$\sigma$(ω)}")
     ax2.plot(freq, Cw.imag, label=r"Im{$\sigma$(ω)}")
     ax2.set_title("Frequency Correlation Function")
     ax2.set_xlabel("Frequency (ω)")
-    ax2.set_ylabel(r"$|C(\omega)|^2$")
+    ax2.set_ylabel(r"$|S(\omega)|$")
     
-    max_amp = np.max(amplitude)
+    max_amp = np.max(np.abs(Cw))
     ax2.set_ylim(-max_amp*1.1, max_amp*1.1)
-    ax2.set_xlim(-1, 200) 
+    ax2.set_xlim(-1, np.max(freq)) 
     ax2.grid()
     ax2.legend()
 
     # Peaks identify
-
-    center = amplitude[1:-1]
-    left = amplitude[:-2]
-    right = amplitude[2:]
+    Cw = np.abs(Cw)
+    center = Cw[1:-1]
+    left = Cw[:-2]
+    right = Cw[2:]
     peaks = (center > left) & (center > right) & (center > threshold)
     peak_indices = np.where(peaks)[0] + 1
 
     print(f"Identified Peaks: (Total: {len(peak_indices)})")
     if len(peak_indices) > 0:
         for idx in peak_indices:
-            print(f"Energy: {freq[idx]:.8f}, Amplitude: {amplitude[idx]:.4e}")
+            print(f"Energy: {freq[idx]:.8f}, Amplitude: {Cw[idx]:.4e}")
 
     plt.tight_layout()
     plt.show()

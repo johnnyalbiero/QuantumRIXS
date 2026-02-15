@@ -64,7 +64,7 @@ def step(par: Parameters, opr: Operators):
 
     if par.im_time:
         density = np.abs(opr.psi) ** 2
-        renorm_factor = sum(density) * par.dx
+        renorm_factor = np.sum(density) * par.dx
         opr.psi /= np.sqrt(renorm_factor)
     return np.abs(opr.psi) ** 2
     
@@ -75,8 +75,9 @@ def time_correlation(par: Parameters, opr: Operators, psi0: np.ndarray):
 
 
 def frequency_correlation_from_ct(par: Parameters, c_full: np.ndarray):
-    freq = np.fft.fftshift(np.fft.fftfreq(len(c_full), d=par.dt)) * 2 * np.pi
-    Cw = np.fft.fftshift(np.fft.ifft(c_full , norm = "forward")) * par.dt 
+    freq = np.fft.fftfreq(len(c_full), d=par.dt) * 2 * np.pi
+    d_omega = freq[1] - freq [0]
+    Cw = (np.fft.ifft(np.fft.ifftshift(c_full), norm = "forward")) * (1 / (len(freq)* d_omega *par.hbar))
     return freq, Cw
 
 def calculate_energy(par: Parameters, opr: Operators):
