@@ -6,7 +6,7 @@ import math
 class Parameters:
     def __init__(self, xmin: float, xmax: float, res: float, 
                  dt: float , timesteps: int, steps_per_frame: int, 
-                 hbar: float, m: float, omega: float, 
+                 hbar: float, m: float, omega: float, Gamma: float,
                  im_time: bool = False
     ):
         self.xmax = xmax
@@ -19,6 +19,7 @@ class Parameters:
         self.hbar = hbar
         self.m = m
         self.omega = omega
+        self.Gamma = Gamma
 
         width = float(xmax) - float(xmin)
         
@@ -61,6 +62,7 @@ def step(par: Parameters, opr: Operators):
     opr.psi *= opr.K
     opr.psi = np.fft.ifft(opr.psi)
     opr.psi *= opr.R
+    opr.psi *= np.exp(- (par.Gamma / par.hbar) * par.dt)
 
     if par.im_time:
         density = np.abs(opr.psi) ** 2
@@ -69,7 +71,7 @@ def step(par: Parameters, opr: Operators):
     return np.abs(opr.psi) ** 2
     
 def time_correlation(par: Parameters, opr: Operators, psi0: np.ndarray):
-    opr.corr = np.conj(psi0) * opr.psi
+    opr.corr = np.conj(psi0) * opr.psi 
     C_t = np.sum(opr.corr) * par.dx
     return C_t
 
@@ -122,7 +124,6 @@ def run_save_simulation(par: Parameters, opr: Operators,
     for i in range(1, total_steps + 1):
         step(par, opr)
         correlation_history[i] = time_correlation(par, opr, psi0)
-        
         if i % steps_per_frame == 0 and frame_idx <= n_frames:
             psi_snapshots[frame_idx] = opr.psi[::stride]
             frame_idx += 1

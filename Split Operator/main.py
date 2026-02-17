@@ -3,12 +3,12 @@ import os
 from split import init, Parameters, run_save_simulation
 
 config = Parameters(
-    xmin=-5, xmax=5, res = 2**17, # How the algoritm use the FFT to calculate the dinamic of the wavefunction it's better to use 2^n to resolution
-    dt=0.01, timesteps=2**18, steps_per_frame=50,
-    hbar=1, m=1, omega=5
+    xmin = -5, xmax = 5, res = 2**17, # How the algoritm use the FFT to calculate the dinamic of the wavefunction it's better to use 2^n to resolution
+    dt = 0.01, timesteps = 2**17, steps_per_frame= 100,
+    hbar = 1, m = 1, omega = 5 , Gamma = 0.005
 )
 pot_params = {'voffset': 0.0}
-psi_params = {'gamma': 0.1, 'k_0': -0.2, 'psioffset': 0.1}
+psi_params = {'gamma': 0.1, 'k_0': -0.2, 'psioffset': 2}
 
 def V_harmonic(x, par, voffset):
     return 0.5 * par.m * (par.omega**2) * (x - voffset)**2

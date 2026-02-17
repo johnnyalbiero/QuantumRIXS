@@ -169,7 +169,7 @@ def plot_simulation(data):
     
     max_amp = np.max(np.abs(Cw))
     ax2.set_ylim(-max_amp*1.1, max_amp*1.1)
-    ax2.set_xlim(-1, np.max(freq)) 
+    ax2.set_xlim(-1, 100) 
     ax2.grid()
     ax2.legend()
 
